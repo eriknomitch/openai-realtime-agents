@@ -21,6 +21,7 @@ import { useHandleServerEvent } from "./hooks/useHandleServerEvent";
 
 // Utilities
 import { createRealtimeConnection } from "./lib/realtimeConnection";
+import { getInterviewAgentInstructions } from "./prompts/interviewAgentPrompt"; // Import the prompt function
 
 // Agent configs
 import { allAgentSets, defaultAgentSetKey } from "@/app/agentConfigs";
@@ -236,6 +237,11 @@ function App() {
       (a) => a.name === selectedAgentName,
     );
 
+    if (!currentAgent) {
+      console.error("Could not find current agent config:", selectedAgentName);
+      return;
+    }
+
     const turnDetection = isPTTActive ? null : {
       type: "server_vad",
       threshold: 0.5,
@@ -244,8 +250,20 @@ function App() {
       create_response: true,
     };
 
-    const instructions = currentAgent?.instructions || "";
-    const tools = currentAgent?.tools || [];
+    // --- Generate instructions dynamically ---
+    let instructions = currentAgent.instructions; // Default instructions from config
+    // If the current agent is the interview agent, call the specific prompt function.
+    // You can add logic here to pass variables if needed.
+    // For now, we call it without variables, matching the static config.
+    if (currentAgent.name === "interviewAgent") {
+      // Example: const promptVars = { userName: "User" };
+      // instructions = getInterviewAgentInstructions(promptVars);
+      instructions = getInterviewAgentInstructions(); // Call the function
+    }
+    // Add similar 'if' blocks here for other agents that need dynamic prompts.
+    // --- End dynamic instructions generation ---
+
+    const tools = currentAgent.tools || [];
 
     const sessionUpdateEvent = {
       type: "session.update",
