@@ -33,23 +33,27 @@ function App() {
   const { logClientEvent, logServerEvent } = useEvent();
 
   const [selectedAgentName, setSelectedAgentName] = useState<string>("");
-  const [selectedAgentConfigSet, setSelectedAgentConfigSet] =
-    useState<AgentConfig[] | null>(null);
+  const [selectedAgentConfigSet, setSelectedAgentConfigSet] = useState<
+    AgentConfig[] | null
+  >(null);
 
   const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
-  const [sessionStatus, setSessionStatus] =
-    useState<SessionStatus>("DISCONNECTED");
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus>(
+    "DISCONNECTED",
+  );
 
-  const [isEventsPaneExpanded, setIsEventsPaneExpanded] =
-    useState<boolean>(true);
+  const [isEventsPaneExpanded, setIsEventsPaneExpanded] = useState<boolean>(
+    true,
+  );
   const [userText, setUserText] = useState<string>("");
   const [isPTTActive, setIsPTTActive] = useState<boolean>(false);
   const [isPTTUserSpeaking, setIsPTTUserSpeaking] = useState<boolean>(false);
-  const [isAudioPlaybackEnabled, setIsAudioPlaybackEnabled] =
-    useState<boolean>(true);
+  const [isAudioPlaybackEnabled, setIsAudioPlaybackEnabled] = useState<boolean>(
+    true,
+  );
 
   const sendClientEvent = (eventObj: any, eventNameSuffix = "") => {
     if (dcRef.current && dcRef.current.readyState === "open") {
@@ -58,11 +62,11 @@ function App() {
     } else {
       logClientEvent(
         { attemptedEvent: eventObj.type },
-        "error.data_channel_not_open"
+        "error.data_channel_not_open",
       );
       console.error(
         "Failed to send message - no data channel available",
-        eventObj
+        eventObj,
       );
     }
   };
@@ -105,11 +109,11 @@ function App() {
       selectedAgentName
     ) {
       const currentAgent = selectedAgentConfigSet.find(
-        (a) => a.name === selectedAgentName
+        (a) => a.name === selectedAgentName,
       );
       addTranscriptBreadcrumb(
         `Agent: ${selectedAgentName}`,
-        currentAgent
+        currentAgent,
       );
       updateSession(true);
     }
@@ -118,7 +122,7 @@ function App() {
   useEffect(() => {
     if (sessionStatus === "CONNECTED") {
       console.log(
-        `updatingSession, isPTTACtive=${isPTTActive} sessionStatus=${sessionStatus}`
+        `updatingSession, isPTTACtive=${isPTTActive} sessionStatus=${sessionStatus}`,
       );
       updateSession();
     }
@@ -157,7 +161,7 @@ function App() {
 
       const { pc, dc } = await createRealtimeConnection(
         EPHEMERAL_KEY,
-        audioElementRef
+        audioElementRef,
       );
       pcRef.current = pc;
       dcRef.current = dc;
@@ -214,33 +218,31 @@ function App() {
           content: [{ type: "input_text", text }],
         },
       },
-      "(simulated user text message)"
+      "(simulated user text message)",
     );
     sendClientEvent(
       { type: "response.create" },
-      "(trigger response after simulated user text message)"
+      "(trigger response after simulated user text message)",
     );
   };
 
   const updateSession = (shouldTriggerResponse: boolean = false) => {
     sendClientEvent(
       { type: "input_audio_buffer.clear" },
-      "clear audio buffer on session update"
+      "clear audio buffer on session update",
     );
 
     const currentAgent = selectedAgentConfigSet?.find(
-      (a) => a.name === selectedAgentName
+      (a) => a.name === selectedAgentName,
     );
 
-    const turnDetection = isPTTActive
-      ? null
-      : {
-          type: "server_vad",
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 200,
-          create_response: true,
-        };
+    const turnDetection = isPTTActive ? null : {
+      type: "server_vad",
+      threshold: 0.5,
+      prefix_padding_ms: 300,
+      silence_duration_ms: 200,
+      create_response: true,
+    };
 
     const instructions = currentAgent?.instructions || "";
     const tools = currentAgent?.tools || [];
@@ -288,7 +290,7 @@ function App() {
     });
     sendClientEvent(
       { type: "response.cancel" },
-      "(cancel due to user interruption)"
+      "(cancel due to user interruption)",
     );
   };
 
@@ -305,7 +307,7 @@ function App() {
           content: [{ type: "input_text", text: userText.trim() }],
         },
       },
-      "(send user text message)"
+      "(send user text message)",
     );
     setUserText("");
 
@@ -313,8 +315,9 @@ function App() {
   };
 
   const handleTalkButtonDown = () => {
-    if (sessionStatus !== "CONNECTED" || dataChannel?.readyState !== "open")
+    if (sessionStatus !== "CONNECTED" || dataChannel?.readyState !== "open") {
       return;
+    }
     cancelAssistantSpeech();
 
     setIsPTTUserSpeaking(true);
@@ -326,8 +329,9 @@ function App() {
       sessionStatus !== "CONNECTED" ||
       dataChannel?.readyState !== "open" ||
       !isPTTUserSpeaking
-    )
+    ) {
       return;
+    }
 
     setIsPTTUserSpeaking(false);
     sendClientEvent({ type: "input_audio_buffer.commit" }, "commit PTT");
@@ -351,7 +355,7 @@ function App() {
   };
 
   const handleSelectedAgentChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const newAgentName = e.target.value;
     setSelectedAgentName(newAgentName);
@@ -367,7 +371,7 @@ function App() {
       setIsEventsPaneExpanded(storedLogsExpanded === "true");
     }
     const storedAudioPlaybackEnabled = localStorage.getItem(
-      "audioPlaybackEnabled"
+      "audioPlaybackEnabled",
     );
     if (storedAudioPlaybackEnabled) {
       setIsAudioPlaybackEnabled(storedAudioPlaybackEnabled === "true");
@@ -385,7 +389,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem(
       "audioPlaybackEnabled",
-      isAudioPlaybackEnabled.toString()
+      isAudioPlaybackEnabled.toString(),
     );
   }, [isAudioPlaybackEnabled]);
 
@@ -407,7 +411,10 @@ function App() {
     <div className="text-base flex flex-col h-screen bg-gray-100 text-gray-800 relative">
       <div className="p-5 text-lg font-semibold flex justify-between items-center">
         <div className="flex items-center">
-          <div onClick={() => window.location.reload()} style={{ cursor: 'pointer' }}>
+          <div
+            onClick={() => window.location.reload()}
+            style={{ cursor: "pointer" }}
+          >
             <Image
               src="/openai-logomark.svg"
               alt="OpenAI Logo"
@@ -458,7 +465,7 @@ function App() {
                   onChange={handleSelectedAgentChange}
                   className="appearance-none border border-gray-300 rounded-lg text-base px-2 py-1 pr-8 cursor-pointer font-normal focus:outline-none"
                 >
-                  {selectedAgentConfigSet?.map(agent => (
+                  {selectedAgentConfigSet?.map((agent) => (
                     <option key={agent.name} value={agent.name}>
                       {agent.name}
                     </option>
@@ -488,10 +495,8 @@ function App() {
           userText={userText}
           setUserText={setUserText}
           onSendMessage={handleSendTextMessage}
-          canSend={
-            sessionStatus === "CONNECTED" &&
-            dcRef.current?.readyState === "open"
-          }
+          canSend={sessionStatus === "CONNECTED" &&
+            dcRef.current?.readyState === "open"}
         />
 
         <Events isExpanded={isEventsPaneExpanded} />
