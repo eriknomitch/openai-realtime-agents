@@ -106,3 +106,11 @@ export interface LoggedEvent {
   eventName: string;
   eventData: Record<string, any>; // can have arbitrary objects logged
 }
+
+// Define an interface for the variables the prompt function expects
+// Add any variables you might need in the future here
+export interface InterviewPromptVars {
+  userName?: string; // Example variable
+  // Add other potential variables like jobTitle, companyName, etc.
+}
+

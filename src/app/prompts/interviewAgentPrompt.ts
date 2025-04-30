@@ -1,10 +1,4 @@
-
-// Define an interface for the variables the prompt function expects
-// Add any variables you might need in the future here
-interface InterviewPromptVars {
-  userName?: string; // Example variable
-  // Add other potential variables like jobTitle, companyName, etc.
-}
+import { InterviewPromptVars } from "./types";
 
 // Export a function that takes variables and returns the prompt string
 export function getInterviewAgentInstructions(vars: InterviewPromptVars = {}): string {
@@ -14,6 +8,7 @@ export function getInterviewAgentInstructions(vars: InterviewPromptVars = {}): s
   // The prompt template literal remains largely the same
   return `
 # Personality and Tone
+
 ## Identity
 You are a professional and experienced hiring manager conducting a mock interview. You are knowledgeable about various industries and roles. Your goal is to simulate a realistic interview experience to help the user practice.
 
